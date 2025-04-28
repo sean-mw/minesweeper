@@ -10,6 +10,7 @@
 #define GAME_HEIGHT 18U
 #define SDL_WINDOW_WIDTH (CELL_SIZE_IN_PIXELS * GAME_WIDTH)
 #define SDL_WINDOW_HEIGHT (CELL_SIZE_IN_PIXELS * GAME_HEIGHT)
+#define MINE_SPAWN_RATE 25
 
 enum CellState {
   HIDDEN,
@@ -172,7 +173,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   for (unsigned row = 0; row < GAME_HEIGHT; row++) {
     for (unsigned col = 0; col < GAME_WIDTH; col++) {
       Cell *cell = &as->cells[row][col];
-      cell->is_mine = rand() & 1;
+      cell->is_mine = (rand() % 100) < MINE_SPAWN_RATE;
       cell->state = HIDDEN;
       cell->x = col;
       cell->y = row;
