@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -10,7 +7,7 @@
 #define GAME_HEIGHT 18U
 #define SDL_WINDOW_WIDTH (CELL_SIZE_IN_PIXELS * GAME_WIDTH)
 #define SDL_WINDOW_HEIGHT (CELL_SIZE_IN_PIXELS * GAME_HEIGHT)
-#define MINE_SPAWN_RATE 20
+#define MINE_SPAWN_RATE 0.2
 
 enum CellState {
   HIDDEN,
@@ -200,7 +197,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-  srand(time(NULL));
+  SDL_srand(0);
 
   if (!SDL_SetAppMetadata("Minesweeper", "1.0",
                           "com.github.sean-mw.Minesweeper")) {
@@ -221,7 +218,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   for (size_t row = 0; row < GAME_HEIGHT; row++) {
     for (size_t col = 0; col < GAME_WIDTH; col++) {
       Cell *cell = &as->cells[row][col];
-      cell->is_mine = (rand() % 100) < MINE_SPAWN_RATE;
+      cell->is_mine = SDL_randf() < MINE_SPAWN_RATE;
       cell->state = HIDDEN;
       cell->x = col;
       cell->y = row;
