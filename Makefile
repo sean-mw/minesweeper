@@ -2,8 +2,7 @@ OBJS = main.c
 
 CC = g++
 
-# -w suppresses all warnings
-# COMPILER_FLAGS = -w
+COMPILER_FLAGS =
 
 LINKER_FLAGS = -lSDL3
 
