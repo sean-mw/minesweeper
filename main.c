@@ -208,14 +208,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   SDL_asprintf(&path, "%s/assets/", SDL_GetBasePath());
   char **files = SDL_GlobDirectory(path, NULL, 0, &as->n_textures);
   SDL_free(path);
-  as->textures = (Texture **)SDL_calloc(as->n_textures, sizeof(Texture));
+  as->textures = (Texture **)SDL_calloc(as->n_textures, sizeof(Texture *));
   for (size_t i = 0; i < as->n_textures; i++) {
     Texture *texture = load_texture(as, files[i]);
     if (!texture) {
       return SDL_APP_FAILURE;
     }
     as->textures[i] = texture;
-    SDL_free(files[i]);
   }
   SDL_free(files);
 
