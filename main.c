@@ -10,7 +10,7 @@
 #define GAME_HEIGHT 18U
 #define SDL_WINDOW_WIDTH (CELL_SIZE_IN_PIXELS * GAME_WIDTH)
 #define SDL_WINDOW_HEIGHT (CELL_SIZE_IN_PIXELS * GAME_HEIGHT)
-#define MINE_SPAWN_RATE 25
+#define MINE_SPAWN_RATE 20
 
 enum CellState {
   HIDDEN,
@@ -72,6 +72,46 @@ Texture *load_texture(AppState *as, const char *file_name) {
   return texture;
 }
 
+bool out_of_bounds(Uint8 x, Uint8 y) {
+  return y < 0 || y >= GAME_HEIGHT || x < 0 || x >= GAME_WIDTH;
+}
+
+void clear_zeroes(AppState *as, Cell *cell) {
+  bool seen[GAME_HEIGHT][GAME_WIDTH];
+  for (size_t y = 0; y < GAME_HEIGHT; y++) {
+    for (size_t x = 0; x < GAME_WIDTH; x++) {
+      seen[y][x] = false;
+    }
+  }
+
+  Cell *queue[GAME_HEIGHT * GAME_WIDTH];
+  queue[0] = cell;
+  seen[cell->y][cell->x] = true;
+  Uint16 q_head = 0, q_tail = 1;
+
+  while (q_head < q_tail) {
+    Cell *head = queue[q_head++];
+    head->state = CLEARED;
+
+    if (head->mine_count != 0) {
+      continue;
+    }
+
+    for (int ny = head->y - 1; ny <= head->y + 1; ny++) {
+      for (int nx = head->x - 1; nx <= head->x + 1; nx++) {
+        if (out_of_bounds(nx, ny)) {
+          continue;
+        }
+        Cell *neighbor = &as->cells[ny][nx];
+        if (!seen[ny][nx] && !neighbor->is_mine) {
+          queue[q_tail++] = neighbor;
+        }
+        seen[ny][nx] = true;
+      }
+    }
+  }
+}
+
 SDL_AppResult handle_mouse_button_event(AppState *as,
                                         SDL_MouseButtonEvent event) {
   Uint8 x = (int)event.x / CELL_SIZE_IN_PIXELS;
@@ -79,10 +119,18 @@ SDL_AppResult handle_mouse_button_event(AppState *as,
   Cell *cell = &as->cells[y][x];
   switch (event.button) {
   case SDL_BUTTON_LEFT:
-    cell->state = CLEARED;
+    if (!cell->is_mine && cell->mine_count == 0) {
+      clear_zeroes(as, cell);
+    } else {
+      cell->state = CLEARED;
+    }
     break;
   case SDL_BUTTON_RIGHT:
-    cell->state = FLAGGED;
+    if (cell->state == HIDDEN) {
+      cell->state = FLAGGED;
+    } else if (cell->state == FLAGGED) {
+      cell->state = HIDDEN;
+    }
     break;
   default:
     break;
@@ -140,8 +188,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_SetRenderDrawColor(as->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
   SDL_RenderClear(as->renderer);
 
-  for (unsigned row = 0; row < GAME_HEIGHT; row++) {
-    for (unsigned col = 0; col < GAME_WIDTH; col++) {
+  for (size_t row = 0; row < GAME_HEIGHT; row++) {
+    for (size_t col = 0; col < GAME_WIDTH; col++) {
       render_cell(as, &as->cells[row][col]);
     }
   }
@@ -170,8 +218,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   }
   *appstate = as;
 
-  for (unsigned row = 0; row < GAME_HEIGHT; row++) {
-    for (unsigned col = 0; col < GAME_WIDTH; col++) {
+  for (size_t row = 0; row < GAME_HEIGHT; row++) {
+    for (size_t col = 0; col < GAME_WIDTH; col++) {
       Cell *cell = &as->cells[row][col];
       cell->is_mine = (rand() % 100) < MINE_SPAWN_RATE;
       cell->state = HIDDEN;
@@ -180,18 +228,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     }
   }
 
-  for (unsigned row = 0; row < GAME_HEIGHT; row++) {
-    for (unsigned col = 0; col < GAME_WIDTH; col++) {
+  for (int y = 0; y < GAME_HEIGHT; y++) {
+    for (int x = 0; x < GAME_WIDTH; x++) {
       Uint8 count = 0;
-      for (unsigned r = row - 1; r <= row + 1; r++) {
-        for (unsigned c = col - 1; c <= col + 1; c++) {
-          if (r < 0 || r >= GAME_HEIGHT || c < 0 || c >= GAME_WIDTH) {
+      for (int ny = y - 1; ny <= y + 1; ny++) {
+        for (int nx = x - 1; nx <= x + 1; nx++) {
+          if (out_of_bounds(nx, ny)) {
             continue;
           }
-          count += as->cells[r][c].is_mine;
+          count += as->cells[ny][nx].is_mine;
         }
       }
-      as->cells[row][col].mine_count = count;
+      as->cells[y][x].mine_count = count;
     }
   }
 
