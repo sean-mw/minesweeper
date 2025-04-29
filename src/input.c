@@ -13,7 +13,11 @@ SDL_AppResult Handle_MouseDown(AppState *as, SDL_MouseButtonEvent event) {
       cell->state = CLEARED;
     break;
   case SDL_BUTTON_RIGHT:
-    cell->state = (cell->state == FLAGGED ? HIDDEN : FLAGGED);
+    if (cell->state == HIDDEN) {
+      cell->state = FLAGGED;
+    } else if (cell->state == FLAGGED) {
+      cell->state = HIDDEN;
+    }
     break;
   default:
     break;
