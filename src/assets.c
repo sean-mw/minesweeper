@@ -1,32 +1,27 @@
 #include "assets.h"
+#include <SDL3_image/SDL_image.h>
 
 static Texture *load_texture(SDL_Renderer *renderer, const char *file_name) {
   SDL_Surface *surface;
-  char *bmp_path;
+  char *path;
   SDL_Texture *sdl_texture;
   Texture *texture = (Texture *)SDL_malloc(sizeof(Texture));
 
-  SDL_asprintf(&bmp_path, "%s/assets/%s", SDL_GetBasePath(), file_name);
+  SDL_asprintf(&path, "%s/assets/%s", SDL_GetBasePath(), file_name);
 
-  surface = SDL_LoadBMP(bmp_path);
+  surface = IMG_Load(path);
+  SDL_free(path);
   if (!surface) {
     SDL_Log("Couldn't load bitmap: %s", SDL_GetError());
-    SDL_DestroySurface(surface);
-    SDL_free(bmp_path);
     return NULL;
   }
-
-  SDL_free(bmp_path);
 
   sdl_texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_DestroySurface(surface);
   if (!sdl_texture) {
     SDL_Log("Couldn't create static texture: %s", SDL_GetError());
-    SDL_DestroySurface(surface);
-    SDL_DestroyTexture(sdl_texture);
     return NULL;
   }
-
-  SDL_DestroySurface(surface);
 
   texture->file_name = SDL_strdup(file_name);
   texture->texture = sdl_texture;

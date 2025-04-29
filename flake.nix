@@ -1,7 +1,7 @@
 {
   description = "A Nix-flake-based C/C++ development environment";
 
-  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.*.tar.gz";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs }:
     let
@@ -30,6 +30,7 @@
               vcpkg
               vcpkg-tool
 	      sdl3
+	      sdl3-image
             ] ++ (if system == "aarch64-darwin" then [ ] else [ gdb ]);
           };
       });

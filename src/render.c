@@ -21,17 +21,17 @@ void Render_Cell(SDL_Renderer *renderer, Texture **textures, int n_textures,
 
   switch (cell->state) {
   case HIDDEN:
-    file_name = "hidden.bmp";
+    file_name = "hidden.png";
     break;
   case FLAGGED:
-    file_name = "flagged.bmp";
+    file_name = "flagged.png";
     break;
   case CLEARED:
     if (cell->is_mine) {
-      file_name = "mine.bmp";
+      file_name = "mine.png";
     } else {
       char count_name[11];
-      SDL_snprintf(count_name, sizeof(count_name), "count%d.bmp",
+      SDL_snprintf(count_name, sizeof(count_name), "count%d.png",
                    cell->mine_count);
       file_name = count_name;
     }

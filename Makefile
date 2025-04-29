@@ -1,5 +1,5 @@
 CC := gcc
-LINKER_FLAGS := -lSDL3
+LINKER_FLAGS := -lSDL3 -lSDL3_image
 
 SRC_DIR := src
 OBJ_DIR := obj
