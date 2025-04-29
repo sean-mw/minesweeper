@@ -9,17 +9,10 @@ static Texture *load_texture(SDL_Renderer *renderer, const char *file_name) {
 
   SDL_asprintf(&path, "%s/assets/%s", SDL_GetBasePath(), file_name);
 
-  surface = IMG_Load(path);
+  sdl_texture = IMG_LoadTexture(renderer, path);
   SDL_free(path);
-  if (!surface) {
-    SDL_Log("Couldn't load bitmap: %s", SDL_GetError());
-    return NULL;
-  }
-
-  sdl_texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_DestroySurface(surface);
   if (!sdl_texture) {
-    SDL_Log("Couldn't create static texture: %s", SDL_GetError());
+    SDL_Log("Couldn't load texture: %s", SDL_GetError());
     return NULL;
   }
 

@@ -16,6 +16,7 @@ void Render_Cell(SDL_Renderer *renderer, Texture **textures, int n_textures,
   SDL_FRect rect;
   SDL_Texture *texture;
   const char *file_name;
+  char count_name[11];
   Uint16 x = cell->x * CELL_SIZE_IN_PIXELS;
   Uint16 y = cell->y * CELL_SIZE_IN_PIXELS;
 
@@ -30,7 +31,6 @@ void Render_Cell(SDL_Renderer *renderer, Texture **textures, int n_textures,
     if (cell->is_mine) {
       file_name = "mine.png";
     } else {
-      char count_name[11];
       SDL_snprintf(count_name, sizeof(count_name), "count%d.png",
                    cell->mine_count);
       file_name = count_name;
