@@ -30,7 +30,6 @@
               vcpkg
               vcpkg-tool
 	      sdl3
-	      valgrind
             ] ++ (if system == "aarch64-darwin" then [ ] else [ gdb ]);
           };
       });
