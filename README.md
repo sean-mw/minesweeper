@@ -1,5 +1,11 @@
 # Build
 
+If using Nix and direnv, all packages will be installed automatically (after `direnv allow`).
+
+Otherwise, you will need to manually set up your development environment (see `flake.nix` for the packages used in this project).
+
+Then you can simply run:
+
 ```
 make all
 ./minesweeper
